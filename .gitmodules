@@ -1,0 +1,12 @@
+[submodule "account"]
+	path = account
+	url = git@github.com:ruandao/dwg255-fish-account.git
+[submodule "common"]
+	path = common
+	url = git@github.com:ruandao/dwg255-fish-common.git
+[submodule "hall"]
+	path = hall
+	url = git@github.com:ruandao/dwg255-fish-hall.git
+[submodule "game"]
+	path = game
+	url = git@github.com:ruandao/dwg255-fish-game.git
