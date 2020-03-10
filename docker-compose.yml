@@ -1,0 +1,107 @@
+version: '3.5'
+
+services:
+  service-user-cli:
+    build: ./user-service/cli
+    container_name: x-user-cli
+    depends_on:
+      - service-user-ser
+    networks:
+      - ser-network
+
+  service-user-ser:
+    build: ./user-service/ser
+    container_name: x-user-service
+    ports:
+      - 50053:50051
+    depends_on:
+      - database
+    networks:
+      - ser-network
+      - db-network
+    environment:
+      MICRO_ADDRESS: ":50051"
+      DB_HOST: "database"
+      DB_PORT: "5432"
+      DB_NAME: "postgres"
+      DB_USER: "postgres"
+      DB_PASSWORD: "postgres_password"
+
+  service-consignment-cli:
+    build: ./consignment-service/cli
+    container_name: x-cli-consignment
+    networks:
+      - ser-network
+    depends_on:
+      - service-consignment-ser
+
+  service-consignment-ser:
+    restart: always # ensures the container will restart on crash
+    container_name: "shippy-service-consignment"
+    build: ./consignment-service/ser
+    ports:
+      - 50051 # exposing this port on the docker network only, not host
+    depends_on:
+      - datastore
+      - service-vessel-ser
+    networks:
+      - db-network
+      - ser-network
+    environment:
+      DB_HOST: "mongodb://datastore:27017"
+      MICRO_ADDRESS: ":50051"
+
+  service-vessel-cli-create:
+    build: ./vessel-service/cli-create
+    container_name: x-cli-create
+    networks:
+      - ser-network
+    depends_on:
+      - service-vessel-ser
+
+  service-vessel-ser:
+    restart: always
+    container_name: "shippy-service-vessel"
+    build: ./vessel-service/ser
+    ports:
+      - 50052:50051
+    depends_on:
+      - datastore
+    networks:
+      - db-network
+      - ser-network
+    environment:
+      DB_HOST: "mongodb://datastore:27017"
+      MICRO_ADDRESS: ":50051"
+
+  datastore:
+    image: mongo:latest
+    container_name: datastore
+    restart: always # ensures the container will restart on crash
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./data/db:/data/db # ensures data persistence between restarting
+    networks:
+      - db-network
+    ports:
+      - 27017
+    command: mongod --logpath=/dev/null
+
+  database:
+    restart: always # ensures the container will restart on crash
+    image: postgres
+    container_name: x-postgres
+    networks:
+      - db-network
+    ports:
+      - 5432
+    environment:
+      POSTGRES_PASSWORD: postgres_password
+
+networks:
+  db-network:
+    name: db-network
+  ser-network:
+    name: ser-network
