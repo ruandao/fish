@@ -5,7 +5,7 @@ services:
     image: nginx
     container_name: fish-nginx
     ports:
-      - 8988:80
+      - 80:80
     networks:
       - ser-network
     volumes:
