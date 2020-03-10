@@ -1,24 +1,78 @@
 version: '3.5'
 
 services:
-  account:
-    build: ./account
-    container_name: x-account
+  web:
+    image: nginx
+    container_name: fish-nginx
+    ports:
+      - 8988:80
     networks:
       - ser-network
+    volumes:
+      - ./client/fish:/var/www/html/client/fish
+      - ./common/conf/nginx.conf:/etc/nginx/conf.d/fish.conf:ro
+
+  account:
+    build: ./account
+    container_name: fish-account
+    depends_on:
+      - redis
+      - db
+    ports:
+      - 4000
+    networks:
+      - ser-network
+    volumes:
+      - ./common:/app/common
 
   game:
     build: ./game
-    container_name: x-game
+    container_name: fish-game
+    depends_on:
+      - redis
+      - db
+    ports:
+      - 4002
     networks:
       - ser-network
+    volumes:
+      - ./common:/app/common
 
   hall:
     build: ./hall
-    container_name: x-hall
+    container_name: fish-hall
+    depends_on:
+      - redis
+      - db
+    ports:
+      - 9000:9000
+    networks:
+      - ser-network
+    volumes:
+      - ./common:/app/common
+
+  db:
+    image: mysql
+    container_name: fish-mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - ser-network
+    ports:
+      - 3306
+
+  redis:
+    image: 'bitnami/redis:latest'
+    container_name: fish-redis
+    ports:
+      - 7000:6379
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
     networks:
       - ser-network
 
 networks:
   ser-network:
-    name: x-ser-network
+    name: fish-ser-network

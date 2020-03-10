@@ -39,7 +39,7 @@
      配置文件位置 /common/conf 内含redis配置和qq第三方登录配置，请自行修改。
 
 5.在线示例:
-     http://fish.blzz.shop
+     http://192.168.1.231:8988
     
 ---
 

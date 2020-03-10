@@ -10,3 +10,6 @@
 [submodule "game"]
 	path = game
 	url = git@github.com:ruandao/dwg255-fish-game.git
+[submodule "client"]
+	path = client
+	url = https://github.com/ruandao/dwg255-fish-client
